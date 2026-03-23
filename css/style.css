@@ -691,7 +691,7 @@ main {
 }
 
 /* Next Hand Button */
-#btn-next {
+#btn-next, #btn-draws-next {
   padding: 12px 32px;
   background: transparent;
   border: 2px solid var(--gold);
@@ -705,7 +705,7 @@ main {
   letter-spacing: 0.03em;
 }
 
-#btn-next:hover {
+#btn-next:hover, #btn-draws-next:hover {
   background: var(--gold);
   color: #1a1000;
   box-shadow: 0 4px 16px rgba(201, 168, 76, 0.3);
