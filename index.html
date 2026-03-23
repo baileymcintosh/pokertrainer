@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Poker Trainer — Equity &amp; Pot Odds</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <h1>Poker Trainer</h1>
+    <span class="header-subtitle" id="header-subtitle">Equity &amp; Pot Odds Decision Making</span>
+    <button id="btn-settings" class="btn-settings" style="display:none">⚙ Settings</button>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-label">Hands Played</span>
+      <span class="stat-value" id="stat-hands">0</span>
+    </div>
+    <div class="stat-item" id="stat-accuracy-item">
+      <span class="stat-label">Decision Accuracy</span>
+      <span class="stat-value" id="stat-accuracy">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Avg Estimate Error</span>
+      <span class="stat-value" id="stat-avg-error">—</span>
+    </div>
+  </div>
+</header>
+
+<!-- Home / Settings Screen -->
+<section id="home-screen">
+  <div class="home-inner">
+
+    <!-- Mode selector -->
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="tab-equity">Equity &amp; Pot Odds</button>
+      <button class="mode-tab" id="tab-draws">Draw Probability</button>
+    </div>
+
+    <p class="home-tagline" id="home-tagline">Sharpen your read on hand equity and pot odds through repetitive decision-making.</p>
+
+    <div class="settings-card">
+      <h2>Training Settings</h2>
+
+      <div class="slider-widget" data-equity-only>
+        <div class="slider-header">
+          <span class="slider-title">Table Size</span>
+          <span class="slider-desc" id="label-villains"></span>
+        </div>
+        <div class="slider-row">
+          <span class="slider-end">Heads-Up</span>
+          <input type="range" id="slider-villains" min="1" max="4" step="0.01" value="3">
+          <span class="slider-end right">Full Ring</span>
+        </div>
+      </div>
+
+      <div class="slider-widget">
+        <div class="slider-header">
+          <span class="slider-title">Hand Stage</span>
+          <span class="slider-desc" id="label-street"></span>
+        </div>
+        <div class="slider-row">
+          <span class="slider-end">Early</span>
+          <input type="range" id="slider-street" min="1" max="3" step="0.01" value="2">
+          <span class="slider-end right">Late</span>
+        </div>
+      </div>
+
+      <div class="slider-widget" data-equity-only>
+        <div class="slider-header">
+          <span class="slider-title">Decision Margin</span>
+          <span class="slider-desc" id="label-difficulty"></span>
+        </div>
+        <div class="slider-row">
+          <span class="slider-end">Clear Edge</span>
+          <input type="range" id="slider-difficulty" min="0" max="25" step="0.01" value="15">
+          <span class="slider-end right">Coin Flip</span>
+        </div>
+      </div>
+    </div>
+
+    <button id="btn-start" class="btn-start">Start Training →</button>
+  </div>
+</section>
+
+<!-- Equity & Pot Odds Training Screen -->
+<main id="training-screen" style="display:none">
+
+  <!-- Scenario Panel -->
+  <section id="scenario-panel">
+
+    <!-- Street + Pot + Bet -->
+    <div class="situation-header">
+      <span id="street-badge" class="street-badge">—</span>
+      <div class="situation-info">
+        <div class="info-item">
+          <span class="info-label">Pot:</span>
+          <span id="pot-display" class="pot-value">—</span>
+        </div>
+        <div class="info-item" id="bet-display-container">
+          <span class="bet-label">Bet to Call:</span>
+          <span class="bet-value">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Community Cards -->
+    <div id="board-area">
+      <div class="section-label">Community Cards</div>
+      <div id="board-cards" class="cards-row"></div>
+    </div>
+
+    <!-- Hero + Villain Hands -->
+    <div id="hands-area">
+      <div id="hero-area">
+        <h3>Your Hand</h3>
+        <div class="hero-badge">HERO</div>
+        <div id="hero-cards" class="cards-row"></div>
+        <div id="hero-hand-name"></div>
+      </div>
+      <div id="villains-area">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Input Panel -->
+  <section id="input-panel">
+    <h2>Your Assessment</h2>
+
+    <div class="input-group">
+      <label for="equity-input">Your Equity Estimate</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="equity-input"
+          min="0"
+          max="100"
+          step="0.1"
+          placeholder="e.g. 45"
+          autocomplete="off"
+        />
+        <span class="input-suffix">%</span>
+      </div>
+      <div class="input-hint">What % of the time do you think you win this hand?</div>
+    </div>
+
+    <div class="input-group" id="pot-odds-group">
+      <label for="pot-odds-input">Your Pot Odds Calculation</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="pot-odds-input"
+          min="0"
+          max="100"
+          step="0.1"
+          placeholder="e.g. 33"
+          autocomplete="off"
+        />
+        <span class="input-suffix">%</span>
+      </div>
+      <div class="input-hint">Minimum equity needed to call: bet ÷ (pot + bet)</div>
+    </div>
+
+    <div class="decision-group">
+      <label>Your Decision</label>
+      <div class="decision-buttons">
+        <button class="decision-btn" id="btn-fold" data-decision="fold">Fold</button>
+        <button class="decision-btn" id="btn-call" data-decision="call">Call</button>
+        <button class="decision-btn" id="btn-raise" data-decision="raise">Raise / Bet</button>
+      </div>
+    </div>
+
+    <div id="calc-status" class="calc-status" style="display:none">Computing preflop odds…</div>
+    <button id="btn-submit" disabled>See Answer →</button>
+  </section>
+
+  <!-- Results Panel -->
+  <section id="results-panel">
+    <h2>Results</h2>
+
+    <div class="results-grid">
+
+      <!-- Equity Comparison -->
+      <div class="result-card">
+        <div class="result-card-title">Equity</div>
+        <div class="result-row">
+          <span class="result-row-label">True equity:</span>
+          <span class="result-row-value true-value" id="result-true-equity">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-row-label">Your estimate:</span>
+          <span class="result-row-value" id="result-user-equity">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-row-label">Error:</span>
+          <span class="result-error" id="result-equity-error">—</span>
+        </div>
+      </div>
+
+      <!-- Pot Odds Comparison -->
+      <div class="result-card" id="pot-odds-result-section">
+        <div class="result-card-title">Pot Odds</div>
+        <div class="result-row">
+          <span class="result-row-label">Required equity:</span>
+          <span class="result-row-value true-value" id="result-required-equity">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-row-label">Your estimate:</span>
+          <span class="result-row-value" id="result-user-pot-odds">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-row-label">Error:</span>
+          <span class="result-error" id="result-pot-odds-error">—</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Decision Verdict -->
+    <div class="decision-result" id="decision-result">
+      <div id="decision-icon">—</div>
+      <div id="decision-message">—</div>
+    </div>
+
+    <!-- Hand Breakdown -->
+    <div class="hand-breakdown">
+      <div class="hand-breakdown-title">Best Hand Made</div>
+      <div class="hand-breakdown-row" id="hero-hand-breakdown-row">
+        <span class="breakdown-label">You:</span>
+        <span class="breakdown-hand" id="hero-hand-result">—</span>
+      </div>
+      <div id="villain-hand-results">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <div class="method-note" id="method-note"></div>
+
+    <button id="btn-next">Next Hand →</button>
+  </section>
+
+</main>
+
+<!-- Draw Probability Training Screen -->
+<main id="draws-screen" style="display:none">
+
+  <!-- Scenario Panel -->
+  <section id="draws-scenario-panel">
+
+    <div class="situation-header">
+      <span id="draws-street-badge" class="street-badge">—</span>
+    </div>
+
+    <div id="draws-board-area">
+      <div class="section-label">Community Cards</div>
+      <div id="draws-board-cards" class="cards-row"></div>
+    </div>
+
+    <div id="draws-hands-area">
+      <div id="draws-hero-area">
+        <h3>Your Hand</h3>
+        <div class="hero-badge">HERO</div>
+        <div id="draws-hero-cards" class="cards-row"></div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Input Panel -->
+  <section id="draws-input-panel">
+    <h2>Your Draw</h2>
+
+    <div class="draw-type-badge" id="draws-type-badge">—</div>
+
+    <div class="input-group">
+      <label for="draws-prob-input">Probability of completing by river</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="draws-prob-input"
+          min="0"
+          max="100"
+          step="0.1"
+          placeholder="e.g. 35"
+          autocomplete="off"
+        />
+        <span class="input-suffix">%</span>
+      </div>
+      <div class="input-hint">How likely are you to complete this draw?</div>
+    </div>
+
+    <button id="btn-draws-submit" disabled>See Answer →</button>
+  </section>
+
+  <!-- Results Panel -->
+  <section id="draws-results-panel" style="display:none">
+    <h2>Results</h2>
+
+    <div class="results-grid">
+      <div class="result-card">
+        <div class="result-card-title">Draw Probability</div>
+        <div class="result-row">
+          <span class="result-row-label">True probability:</span>
+          <span class="result-row-value true-value" id="draws-result-true">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-row-label">Your estimate:</span>
+          <span class="result-row-value" id="draws-result-user">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-row-label">Error:</span>
+          <span class="result-error" id="draws-result-error">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="method-note" id="draws-method-note"></div>
+
+    <button id="btn-draws-next">Next Hand →</button>
+  </section>
+
+</main>
+
+<script src="js/cards.js"></script>
+<script src="js/evaluator.js"></script>
+<script src="js/equity.js"></script>
+<script src="js/scenarios.js"></script>
+<script src="js/draws.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
