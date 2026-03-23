@@ -323,7 +323,6 @@ function init() {
   // Equity training screen
   document.getElementById('btn-fold').addEventListener('click', handleDecisionSelect);
   document.getElementById('btn-call').addEventListener('click', handleDecisionSelect);
-  document.getElementById('btn-raise').addEventListener('click', handleDecisionSelect);
   document.getElementById('btn-submit').addEventListener('click', handleSubmit);
   document.getElementById('btn-next').addEventListener('click', loadNewScenario);
 
@@ -471,7 +470,7 @@ function handleSubmit() {
   const correctDecision = trueEquity > requiredEquity ? 'call' : 'fold';
   const userIsCorrect   = correctDecision === 'fold'
     ? selectedDecision === 'fold'
-    : (selectedDecision === 'call' || selectedDecision === 'raise');
+    : selectedDecision === 'call';
 
   const equityError = Math.abs(userEquity - trueEquity);
   sessionStats.handsPlayed++;

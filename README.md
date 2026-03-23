@@ -8,7 +8,7 @@ A personal poker training tool for building two core skills: hand equity estimat
 You're shown a hand mid-street with all cards face-up (yours and your opponents'). You estimate:
 - Your **equity** (% chance your hand wins)
 - The **pot odds** (minimum equity needed to break even on a call)
-- Your **decision** — Fold, Call, or Raise
+- Your **decision** — Fold or Call
 
 On submit, you see the true equity (calculated exactly for flop/turn, via Monte Carlo for preflop), whether your decision was correct, and how far off your estimates were.
 
@@ -21,7 +21,6 @@ Solo mode — no opponents. You're shown your hole cards and a board (flop or tu
 |---|---|---|
 | Table Size | Controls how many opponents you face (1–4, weighted) | Equity mode |
 | Hand Stage | Weights toward earlier (preflop/flop) or later (flop/turn) streets | Both modes |
-| Decision Margin | Target gap between equity and pot odds — lower = harder decisions | Equity mode |
 
 Settings persist across sessions via `localStorage`.
 
