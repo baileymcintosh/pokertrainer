@@ -74,10 +74,19 @@ function updateSliderLabels() {
 // ── Screen switching ───────────────────────────────────────────────────────
 
 function showHomeScreen() {
-  document.getElementById('home-screen').style.display     = 'block';
-  document.getElementById('training-screen').style.display = 'none';
-  document.getElementById('draws-screen').style.display    = 'none';
-  document.getElementById('btn-settings').style.display    = 'none';
+  document.getElementById('home-screen').style.display        = 'block';
+  document.getElementById('training-screen').style.display    = 'none';
+  document.getElementById('draws-screen').style.display       = 'none';
+  document.getElementById('cheatsheet-screen').style.display  = 'none';
+  document.getElementById('btn-settings').style.display       = 'none';
+}
+
+function showCheatSheet() {
+  document.getElementById('home-screen').style.display        = 'none';
+  document.getElementById('training-screen').style.display    = 'none';
+  document.getElementById('draws-screen').style.display       = 'none';
+  document.getElementById('cheatsheet-screen').style.display  = 'block';
+  document.getElementById('btn-settings').style.display       = 'none';
 }
 
 function showTrainingScreen() {
@@ -315,6 +324,11 @@ function init() {
   // Mode tabs
   document.getElementById('tab-equity').addEventListener('click', () => setMode('equity'));
   document.getElementById('tab-draws').addEventListener('click',  () => setMode('draws'));
+
+  // Header navigation
+  document.getElementById('btn-home').addEventListener('click', showHomeScreen);
+  document.getElementById('btn-cheatsheet').addEventListener('click', showCheatSheet);
+  document.getElementById('btn-cheatsheet-back').addEventListener('click', showHomeScreen);
 
   // Home screen
   document.getElementById('btn-start').addEventListener('click', showTrainingScreen);
@@ -617,5 +631,62 @@ function updateStats() {
       ? (sessionStats.totalEquityError / sessionStats.handsPlayed * 100).toFixed(1) + '%' : '—';
   }
 }
+
+// ── Keyboard shortcuts ─────────────────────────────────────────────────────
+// Full keyboard flow:
+//   Equity mode:  type equity → Tab → type pot odds → Tab → F (fold) or C (call) → Enter (submit) → Enter (next)
+//   Draws mode:   type probability → Enter (submit) → Enter (next)
+
+document.addEventListener('keydown', function(e) {
+  const active    = document.activeElement;
+  const inInput   = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
+  const key       = e.key;
+
+  // ── Equity mode ──────────────────────────────────────────────────────────
+  if (document.getElementById('training-screen').style.display !== 'none') {
+    const resultsVisible = document.getElementById('results-panel').style.display !== 'none';
+
+    if (resultsVisible) {
+      if (key === 'Enter') { if (inInput) active.blur(); loadNewScenario(); }
+      return;
+    }
+
+    // F / C shortcuts to select decision (only when not typing in an input)
+    if (!inInput) {
+      if (key === 'f' || key === 'F') { document.getElementById('btn-fold').click(); return; }
+      if (key === 'c' || key === 'C') { document.getElementById('btn-call').click(); return; }
+    }
+
+    // Enter from either an input field or anywhere else → submit if ready
+    if (key === 'Enter') {
+      // If focus is in equity or pot-odds input, Tab to next field instead of submitting
+      // so the user can fill both before submitting
+      if (active && active.id === 'equity-input') {
+        e.preventDefault();
+        document.getElementById('pot-odds-input').focus();
+        return;
+      }
+      const submitBtn = document.getElementById('btn-submit');
+      if (!submitBtn.disabled) { if (inInput) active.blur(); handleSubmit(); }
+    }
+    return;
+  }
+
+  // ── Draws mode ───────────────────────────────────────────────────────────
+  if (document.getElementById('draws-screen').style.display !== 'none') {
+    const resultsVisible = document.getElementById('draws-results-panel').style.display !== 'none';
+
+    if (resultsVisible) {
+      if (key === 'Enter') { if (inInput) active.blur(); loadDrawScenario(); }
+      return;
+    }
+
+    if (key === 'Enter') {
+      const submitBtn = document.getElementById('btn-draws-submit');
+      if (!submitBtn.disabled) { if (inInput) active.blur(); handleDrawSubmit(); }
+    }
+    return;
+  }
+});
 
 document.addEventListener('DOMContentLoaded', init);

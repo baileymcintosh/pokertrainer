@@ -10,9 +10,12 @@
 
 <header>
   <div class="header-top">
-    <h1>Poker Trainer</h1>
+    <h1 id="btn-home" title="Go to home screen">Poker Trainer</h1>
     <span class="header-subtitle" id="header-subtitle">Equity &amp; Pot Odds Decision Making</span>
-    <button id="btn-settings" class="btn-settings" style="display:none">⚙ Settings</button>
+    <div class="header-actions">
+      <button id="btn-cheatsheet" class="btn-settings">Cheat Sheet</button>
+      <button id="btn-settings" class="btn-settings" style="display:none">⚙ Settings</button>
+    </div>
   </div>
   <div class="stats-bar">
     <div class="stat-item">
@@ -323,6 +326,98 @@
     <button id="btn-draws-next">Next Hand →</button>
   </section>
 
+</main>
+
+<!-- Cheat Sheet Screen -->
+<main id="cheatsheet-screen" style="display:none">
+  <div class="cheatsheet-inner">
+
+    <div class="cheatsheet-header">
+      <h2>Mental Shortcuts</h2>
+      <button id="btn-cheatsheet-back" class="btn-settings">← Back</button>
+    </div>
+
+    <!-- Rule of 2 and 4 -->
+    <div class="cs-card">
+      <h3>Rule of 2 and 4</h3>
+      <p class="cs-subtitle">Quick estimation of draw completion odds</p>
+      <div class="cs-rule-grid">
+        <div class="cs-rule">
+          <div class="cs-rule-label">Flop → River <span class="cs-rule-note">(2 cards to come)</span></div>
+          <div class="cs-rule-formula">Outs × 4 ≈ %</div>
+        </div>
+        <div class="cs-rule">
+          <div class="cs-rule-label">Turn → River <span class="cs-rule-note">(1 card to come)</span></div>
+          <div class="cs-rule-formula">Outs × 2 ≈ %</div>
+        </div>
+      </div>
+      <p class="cs-note">Slightly overestimates for high out counts (&gt;9 outs). Exact formula: 1 − (miss/remaining) × (miss−1)/(remaining−1)</p>
+    </div>
+
+    <!-- Common Draws -->
+    <div class="cs-card">
+      <h3>Common Draws</h3>
+      <table class="cs-table">
+        <thead>
+          <tr><th>Draw</th><th>Outs</th><th>Flop→River</th><th>Turn→River</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Flush draw</td><td>9</td><td>35%</td><td>19%</td></tr>
+          <tr><td>Open-ended straight (OESD)</td><td>8</td><td>31%</td><td>17%</td></tr>
+          <tr><td>Flush + OESD combo</td><td>15</td><td>54%</td><td>33%</td></tr>
+          <tr><td>Gutshot straight</td><td>4</td><td>16%</td><td>9%</td></tr>
+          <tr><td>Two overcards</td><td>6</td><td>24%</td><td>13%</td></tr>
+          <tr><td>Set → full house / quads</td><td>7</td><td>27%</td><td>15%</td></tr>
+          <tr><td>Pair → trips</td><td>2</td><td>8%</td><td>4%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pot Odds -->
+    <div class="cs-card">
+      <h3>Pot Odds</h3>
+      <p class="cs-subtitle">Minimum equity needed to call: <span class="cs-formula">bet ÷ (pot + bet)</span></p>
+      <table class="cs-table">
+        <thead>
+          <tr><th>Bet size</th><th>Required equity</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>¼ pot (25%)</td><td>20%</td></tr>
+          <tr><td>⅓ pot (33%)</td><td>25%</td></tr>
+          <tr><td>½ pot (50%)</td><td>33%</td></tr>
+          <tr><td>⅔ pot (67%)</td><td>40%</td></tr>
+          <tr><td>Full pot (100%)</td><td>50%</td></tr>
+        </tbody>
+      </table>
+      <p class="cs-note">If your equity &gt; required equity → call is profitable. If equity &lt; required equity → fold.</p>
+    </div>
+
+    <!-- Preflop Starting Points -->
+    <div class="cs-card">
+      <h3>Preflop Probabilities</h3>
+      <table class="cs-table">
+        <thead>
+          <tr><th>Situation</th><th>Probability</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Pocket pair → set on flop</td><td>12%</td></tr>
+          <tr><td>Pocket pair → set by river</td><td>19%</td></tr>
+          <tr><td>Suited hand → flush by river</td><td>6%</td></tr>
+          <tr><td>Any hand → pair on flop</td><td>29%</td></tr>
+          <tr><td>AK vs JJ (coinflip)</td><td>~50/50</td></tr>
+          <tr><td>Dominated hand (KQ vs AK)</td><td>~30%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Multi-way pot note -->
+    <div class="cs-card">
+      <h3>Multi-way Pots</h3>
+      <p class="cs-body">Equity drops sharply with more opponents. A hand with 50% equity heads-up might have only 30% against two opponents and 20% against three. Always factor in the number of players when deciding to call.</p>
+      <p class="cs-body">A quick sanity check: divide your heads-up equity estimate by the number of opponents to get a rough multi-way figure.</p>
+    </div>
+
+  </div>
 </main>
 
 <script src="js/cards.js"></script>
